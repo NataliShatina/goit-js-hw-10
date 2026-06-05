@@ -1,1 +1,99 @@
-console.log('Hallo!');
+// ================= IMPORTS =================
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
+
+// ================= ELEMENTS =================
+const startBtn = document.querySelector('[data-start]');
+const dateInput = document.querySelector('#datetime-picker');
+
+const dataDaysEl = document.querySelector('[data-days]');
+const dataHoursEl = document.querySelector('[data-hours]');
+const dataMinEl = document.querySelector('[data-minutes]');
+const dataSecEl = document.querySelector('[data-seconds]');
+
+// ================= STATE =================
+startBtn.disabled = true;
+
+let userSelectedDate = null;
+let timerId = null;
+
+// ================= FLATPICKR =================
+const options = {
+  enableTime: true,
+  time_24hr: true,
+  defaultDate: new Date(),
+  minuteIncrement: 1,
+
+  onClose(selectedDates) {
+    userSelectedDate = selectedDates[0];
+
+    if (!userSelectedDate || userSelectedDate <= Date.now()) {
+      startBtn.disabled = true;
+
+      iziToast.error({
+        message: 'Please choose a date in the future',
+      });
+
+      return;
+    }
+
+    startBtn.disabled = false;
+  },
+};
+
+flatpickr('#datetime-picker', options);
+
+// ================= START TIMER =================
+startBtn.addEventListener('click', onStart);
+
+function onStart() {
+  startBtn.disabled = true;
+  dateInput.disabled = true;
+
+  timerId = setInterval(() => {
+    const currentTime = Date.now();
+    const diffTime = userSelectedDate - currentTime;
+
+    if (diffTime <= 0) {
+      clearInterval(timerId);
+      updateTimer({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+      dateInput.disabled = false;
+      return;
+    }
+
+    const time = convertMs(diffTime);
+    updateTimer(time);
+  }, 1000);
+}
+
+// ================= UPDATE UI =================
+function updateTimer({ days, hours, minutes, seconds }) {
+  dataDaysEl.textContent = addLeadingZero(days);
+  dataHoursEl.textContent = addLeadingZero(hours);
+  dataMinEl.textContent = addLeadingZero(minutes);
+  dataSecEl.textContent = addLeadingZero(seconds);
+}
+
+// ================= FORMAT =================
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
+
+// ================= TIME CONVERTER =================
+function convertMs(ms) {
+  const second = 1000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+
+  const days = Math.floor(ms / day);
+  const hours = Math.floor((ms % day) / hour);
+  const minutes = Math.floor(((ms % day) % hour) / minute);
+  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+
+  return { days, hours, minutes, seconds };
+}
