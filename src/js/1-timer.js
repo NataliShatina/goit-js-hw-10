@@ -1,11 +1,9 @@
-// ================= IMPORTS =================
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-// ================= ELEMENTS =================
 const startBtn = document.querySelector('[data-start]');
 const dateInput = document.querySelector('#datetime-picker');
 
@@ -14,13 +12,11 @@ const dataHoursEl = document.querySelector('[data-hours]');
 const dataMinEl = document.querySelector('[data-minutes]');
 const dataSecEl = document.querySelector('[data-seconds]');
 
-// ================= STATE =================
 startBtn.disabled = true;
 
 let userSelectedDate = null;
 let timerId = null;
 
-// ================= FLATPICKR =================
 const options = {
   enableTime: true,
   time_24hr: true,
@@ -46,7 +42,6 @@ const options = {
 
 flatpickr('#datetime-picker', options);
 
-// ================= START TIMER =================
 startBtn.addEventListener('click', onStart);
 
 function onStart() {
@@ -70,7 +65,6 @@ function onStart() {
   }, 1000);
 }
 
-// ================= UPDATE UI =================
 function updateTimer({ days, hours, minutes, seconds }) {
   dataDaysEl.textContent = addLeadingZero(days);
   dataHoursEl.textContent = addLeadingZero(hours);
@@ -78,12 +72,10 @@ function updateTimer({ days, hours, minutes, seconds }) {
   dataSecEl.textContent = addLeadingZero(seconds);
 }
 
-// ================= FORMAT =================
 function addLeadingZero(value) {
   return String(value).padStart(2, '0');
 }
 
-// ================= TIME CONVERTER =================
 function convertMs(ms) {
   const second = 1000;
   const minute = second * 60;
